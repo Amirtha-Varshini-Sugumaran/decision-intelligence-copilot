@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+pytest-cache-files-*/
+.tmp/
+.testdeps/
+.venv/
+venv/
+.env
+.DS_Store
+reports/*.json
+reports/*.md
+!reports/sample_output_report.md
+data/*.csv
+!data/sample_business_data.csv
