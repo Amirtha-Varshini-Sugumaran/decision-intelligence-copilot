@@ -1,17 +1,16 @@
 # Decision Intelligence Copilot
 
-Production-style FastAPI system that ingests business CSV data, trains machine learning models, explains drivers, and uses prompt-engineered OpenAI outputs to create actionable decision reports.
+FastAPI service for decision intelligence workflows. The application ingests structured business data, trains predictive models, explains model drivers, and uses controlled OpenAI prompts to produce structured business recommendations.
 
 ## Problem Statement
 
-Business teams often have useful sales, customer, and operations data, but the path from raw CSV to usable recommendation is slow. This project turns structured business data into:
+Business teams often keep sales, customer, and operations data in spreadsheets or CSV exports. This service provides a repeatable API workflow for converting that data into model-backed analysis:
 
 - Machine-readable JSON analysis
-- Human-readable decision report
 - Classification risk signals, such as churn risk
 - Regression forecasts, such as next-month revenue
 - Interpretable feature importance
-- LLM-generated insights, risk explanation, and recommendations
+- Structured insight, risk explanation, and recommendation payloads
 
 ## Architecture
 
@@ -22,7 +21,7 @@ app/
   services/     Data ingestion, ML, LLM, prompts, reports
   utils/        Logging helpers
 data/           Example dataset and uploaded CSV files
-reports/        Generated JSON and Markdown reports
+reports/        Runtime analysis artifacts, excluded from version control
 tests/          Focused service tests
 ```
 
@@ -30,9 +29,9 @@ Flow:
 
 1. `/upload-data` accepts a CSV file and validates basic shape.
 2. `/run-analysis` preprocesses data with pandas, trains scikit-learn classification and regression models, selects features, evaluates accuracy/RMSE, extracts feature importance, and generates OpenAI-powered insights.
-3. `/get-report/{analysis_id}` returns the saved Markdown report and JSON result.
+3. `/get-report/{analysis_id}` returns the stored analysis artifact and generated report body for the requested run.
 
-If `OPENAI_API_KEY` is not configured, the system returns deterministic local fallback insights so the API remains demoable.
+If `OPENAI_API_KEY` is not configured, the system returns deterministic local fallback insights. This keeps ingestion, preprocessing, model training, and report persistence available in offline environments.
 
 ## Prompt Engineering
 
@@ -42,7 +41,7 @@ The prompt layer includes three structured templates:
 - Risk Explanation Prompt
 - Recommendation Prompt
 
-Each template includes context, data summary or model outputs, and explicit instructions to use only provided data, avoid hallucination, and return structured JSON in a professional business tone.
+Each template includes context, data summary or model outputs, and explicit instructions to use only supplied data, avoid unsupported claims, and return structured JSON in a professional business tone.
 
 ## How To Run
 
@@ -58,7 +57,7 @@ Set environment variables:
 
 ```powershell
 Copy-Item .env.example .env
-# Add OPENAI_API_KEY to .env for live LLM reports.
+# Add OPENAI_API_KEY to .env to enable OpenAI-backed recommendations.
 ```
 
 Start the API:
@@ -89,7 +88,7 @@ curl.exe -X POST "http://127.0.0.1:8000/run-analysis" `
   -d "{\"dataset_id\":\"<DATASET_ID>\",\"classification_target\":\"churn_risk\",\"regression_target\":\"next_month_revenue\"}"
 ```
 
-Fetch report:
+Fetch stored analysis:
 
 ```powershell
 curl.exe "http://127.0.0.1:8000/get-report/<ANALYSIS_ID>"
@@ -102,8 +101,6 @@ python example_api_usage.py
 ```
 
 ## Sample Output
-
-A sample report is available at `reports/sample_output_report.md`.
 
 Example JSON fields:
 
@@ -126,7 +123,7 @@ Example JSON fields:
 
 ## Business Value
 
-This copilot helps teams move from raw operational data to decision-ready interpretation. It supports retention, revenue planning, prioritization, and executive reporting while keeping model outputs explainable and auditable.
+The service supports retention analysis, revenue planning, operating reviews, and prioritization workflows. It keeps model outputs explainable and stores each run as an auditable analysis artifact.
 
 ## Docker
 
@@ -140,4 +137,3 @@ docker run --env-file .env -p 8000:8000 decision-intelligence-copilot
 ```powershell
 pytest
 ```
-

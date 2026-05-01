@@ -19,7 +19,7 @@ class ReportService:
         self.settings.reports_dir.mkdir(parents=True, exist_ok=True)
 
     def save(self, analysis_id: str, result: dict[str, Any]) -> str:
-        """Persist JSON result and human-readable Markdown report."""
+        """Persist the structured result and generated report body."""
 
         json_path = self._json_path(analysis_id)
         report_path = self._report_path(analysis_id)
@@ -88,4 +88,3 @@ class ReportService:
 
     def _report_path(self, analysis_id: str) -> Path:
         return self.settings.reports_dir / f"{analysis_id}.md"
-
